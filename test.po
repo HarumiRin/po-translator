@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+
+msgid "Hello world"
+msgstr ""
+
+msgid "Good morning"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "The file %s was saved."
+msgstr ""
+
+msgid "Welcome, %s!"
+msgstr ""
+
+msgid "You have %d messages."
+msgstr ""
