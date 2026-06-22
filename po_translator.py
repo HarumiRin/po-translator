@@ -39,29 +39,6 @@ def get_cli_args():
     
     return input_file, output_file, target_language, batch_size
 
-"""
-def get_user_input():
-    # Arquivos
-    input_file = input("Input .po file: ")
-
-    output_file = input_file.replace(".po", "_translated.po")
-
-    target_language = input("Target language (en, fr, es...): ").strip().lower()
-
-    while True:
-        try:
-            batch_size = int(input("Batch size (recommended: 50): "))
-                
-            if batch_size <= 0:
-                print("Batch size must be greater than zero.")
-                continue
-            break
-            
-        except ValueError:
-            print("Please enter a valid number.")
-        
-    return input_file, output_file, target_language, batch_size
-"""
 
 def main():
     input_file, output_file, target_language, batch_size = get_cli_args()
