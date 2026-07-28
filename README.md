@@ -64,7 +64,7 @@ python po_translator.py input.po target_language batch_size
 | `target_language` | Target language code (`pt-br`, `en`, `es`, `fr`, etc). |
 | `batch_size` | Number of entries translated per request. |
 
-### Example
+## Example
 
 ```bash
 python po_translator.py messages.po pt 50
@@ -78,6 +78,6 @@ This command translates `messages.po` into Portuguese using batches of 50 entrie
 * Support for additional translation providers.
 * Unit tests.
 
-## Licence
+## License
 
 This project is licensed under the MIT License.
