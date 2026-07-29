@@ -1,6 +1,7 @@
 import customtkinter as ctk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import subprocess
+from pathlib import Path
 
 GRID_PADDING = {
     "padx": 10,
@@ -33,6 +34,19 @@ def translate():
     file_path = file_entry.get()
     language = LANGUAGE_CODES[language_menu.get()]
     batch_size = 50
+
+    path = Path(file_path)
+
+    if (not path.exists()
+        or not path.is_file()
+        or path.suffix != ".po"):
+
+        messagebox.showerror(
+            "Invalid file",
+            "Please select a valid .po file."
+        )
+        return
+
 
     subprocess.run(
         [
