@@ -24,12 +24,100 @@ LANGUAGE_CODES = {
     "Turkish": "tr",
 }
 
+batch_size = 50
+
+
+def center_window(window, width, height):
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+
+    x = (screen_width - width) // 2
+    y = (screen_height - height) // 2
+
+    window.geometry(f"{width}x{height}+{x}+{y}")
+
+
 def browse_file():
     filename = filedialog.askopenfilename()
 
     if filename:
         file_entry.delete(0, ctk.END)
         file_entry.insert(0, filename)
+
+def open_advanced_settings():
+    settings_window = ctk.CTkToplevel(app)
+
+    settings_window.transient(app)
+    settings_window.grab_set()
+
+    settings_window.title("Advanced Settings")
+    center_window(settings_window, 400, 200)
+
+
+    batch_label = ctk.CTkLabel(
+        settings_window,
+        text="Batch size:"
+    )
+
+    batch_entry = ctk.CTkEntry(
+        settings_window,
+        width=100
+    )
+
+    batch_entry.insert(0, str(batch_size))
+
+    def save_settings():
+        global batch_size
+
+        try:
+            new_batch_size = int(batch_entry.get())
+        except ValueError:
+            messagebox.showerror(
+                "Invalid batch size",
+                "Batch size must be a number."
+            )
+            return
+
+        if new_batch_size <= 0:
+            messagebox.showerror(
+                "Invalid batch size",
+                "Batch size must be greater than 0."
+            )
+            return
+
+        batch_size = new_batch_size
+
+        batch_size_label.configure(
+            text=f"Batch size: {batch_size}"
+        )
+
+        settings_window.destroy()
+
+    save_button = ctk.CTkButton(
+        settings_window,
+        text="Save",
+        command=save_settings
+    )
+
+
+    batch_label.grid(
+        row=0,
+        column=0,
+        **GRID_PADDING
+    )
+
+    batch_entry.grid(
+        row=0,
+        column=1,
+        **GRID_PADDING
+    )
+
+    save_button.grid(
+        row=1,
+        column=1,
+        **GRID_PADDING
+    )
+
 
 def run_translation(file_path, language, batch_size):
     result = subprocess.run(
@@ -47,16 +135,26 @@ def run_translation(file_path, language, batch_size):
             0,
             lambda: status_label.configure(text="Translation completed!")
         )
+
+        app.after(
+            0,
+            lambda: translate_button.configure(state="normal")
+        )
+
     else:
         app.after(
             0,
             lambda: status_label.configure(text="Translation failed.")
         )
 
+        app.after(
+            0,
+            lambda: translate_button.configure(state="normal")
+        )
+
 def translate():
     file_path = file_entry.get()
     language = LANGUAGE_CODES[language_menu.get()]
-    batch_size = 50
 
     path = Path(file_path)
 
@@ -72,6 +170,7 @@ def translate():
 
 
     status_label.configure(text="Translating...")
+    translate_button.configure(state="disabled")
 
     threading.Thread(
         target=run_translation,
@@ -79,10 +178,12 @@ def translate():
         daemon=True
     ).start()
 
+
 app = ctk.CTk()
 
 app.title("PO Translator")
-app.geometry("700x450")
+center_window(app, 700, 450)
+
 app.grid_columnconfigure(1, weight=1)
 app.grid_rowconfigure(4, weight=1)
 
@@ -123,7 +224,13 @@ language_menu = ctk.CTkOptionMenu(
 
 advanced_button = ctk.CTkButton(
     app,
-    text="Advanced Settings"
+    text="Advanced Settings",
+    command=open_advanced_settings
+)
+
+batch_size_label = ctk.CTkLabel(
+    app,
+    text=f"Batch size: {batch_size}"
 )
 
 status_label = ctk.CTkLabel(
@@ -187,6 +294,13 @@ language_menu.grid(
 advanced_button.grid(
     row=3,
     column=1,
+    **GRID_PADDING,
+)
+
+batch_size_label.grid(
+    row=3,
+    column=2,
+    sticky="w",
     **GRID_PADDING,
 )
 

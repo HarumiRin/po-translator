@@ -97,6 +97,12 @@ def main():
         except Exception as e:
 
             print(f"Batch translation failed: {e}")
+
+            if "too many requests" in str(e).lower():
+                print("Rate limit reached. Skipping individual translation.")
+                failed_count += len(batch)
+                continue
+            
             print("Trying individual translation...")
 
             for entry in batch:
