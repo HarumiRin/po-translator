@@ -57,6 +57,7 @@ def main():
 
     total = len(entries)
     translated_count = 0
+    failed_count = 0
 
     for i in range(0, len(entries), batch_size):
 
@@ -120,6 +121,7 @@ def main():
 
                     print("Translation failed:", entry.msgid)
                     entry.msgstr = entry.msgid
+                    failed_count += 1
 
         time.sleep(0.5)
 
@@ -130,8 +132,10 @@ def main():
 
     po.save(output_file)
 
-    print("Translation completed!")
-
+    if failed_count == 0:
+        print("Translation completed!")
+    else:
+        print(f"Translation completed with {failed_count} failed entries.")
     
 if __name__ == "__main__":
     main()

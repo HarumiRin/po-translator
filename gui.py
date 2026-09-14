@@ -2,6 +2,7 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import subprocess
 from pathlib import Path
+import threading
 
 GRID_PADDING = {
     "padx": 10,
@@ -10,7 +11,7 @@ GRID_PADDING = {
 
 LANGUAGE_CODES = {
     "English": "en",
-    "Brazilian Portuguese": "pt-BR",
+    "Brazilian Portuguese": "portuguese",
     "Spanish": "es",
     "French": "fr",
     "German": "de",
@@ -30,6 +31,28 @@ def browse_file():
         file_entry.delete(0, ctk.END)
         file_entry.insert(0, filename)
 
+def run_translation(file_path, language, batch_size):
+    result = subprocess.run(
+        [
+            "python",
+            "po_translator.py",
+            file_path,
+            language,
+            str(batch_size)
+        ]
+    )
+
+    if result.returncode == 0:
+        app.after(
+            0,
+            lambda: status_label.configure(text="Translation completed!")
+        )
+    else:
+        app.after(
+            0,
+            lambda: status_label.configure(text="Translation failed.")
+        )
+
 def translate():
     file_path = file_entry.get()
     language = LANGUAGE_CODES[language_menu.get()]
@@ -48,15 +71,13 @@ def translate():
         return
 
 
-    subprocess.run(
-        [
-            "python",
-            "po_translator.py",
-            file_path,
-            language,
-            str(batch_size),
-        ]
-    )
+    status_label.configure(text="Translating...")
+
+    threading.Thread(
+        target=run_translation,
+        args=(file_path, language, batch_size),
+        daemon=True
+    ).start()
 
 app = ctk.CTk()
 
@@ -105,6 +126,10 @@ advanced_button = ctk.CTkButton(
     text="Advanced Settings"
 )
 
+status_label = ctk.CTkLabel(
+    app,
+    text="Ready"
+)
 
 translate_button = ctk.CTkButton(
     app,
@@ -162,6 +187,13 @@ language_menu.grid(
 advanced_button.grid(
     row=3,
     column=1,
+    **GRID_PADDING,
+)
+
+status_label.grid(
+    row=4,
+    column=1,
+    sticky="w",
     **GRID_PADDING,
 )
 
